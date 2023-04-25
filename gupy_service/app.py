@@ -5,8 +5,8 @@ import mysql.connector
 app = Flask(__name__)
 db_exists = False
 vagas_exists = False
-perguntas_eliminatorias_exists = False
-perguntas_obrigatorias_exists = False
+perguntas_exists = False
+respostas_exists = False
 
 mydb = mysql.connector.connect(
   host="localhost",
@@ -42,77 +42,83 @@ for t in mycursor:
   for v in t:
     if (v == 'vagas'):
         vagas_exists = True
-    if (v == 'perguntas_eliminatorias'):
-        perguntas_eliminatorias_exists = True
-    if (v == 'perguntas_obrigatorias'):
-        perguntas_obrigatorias_exists = True
+    if (v == 'perguntas'):
+        perguntas_exists = True
+    if (v == 'respostas'):
+        respostas_exists = True
 
 if (vagas_exists == False):
-  mycursor.execute("CREATE TABLE vagas (id INT PRIMARY KEY, nome VARCHAR(200))")
+  mycursor.execute("CREATE TABLE vagas (id_vaga INT PRIMARY KEY NOT NULL UNIQUE AUTO_INCREMENT, nome VARCHAR(200))")
 
-if (perguntas_obrigatorias_exists == False):
-  mycursor.execute("CREATE TABLE perguntas_obrigatorias (id_usuario INT PRIMARY KEY NOT NULL UNIQUE AUTO_INCREMENT, nome VARCHAR(300), email VARCHAR(250), formacao VARCHAR(300), tecnologias VARCHAR(300))")
+if (perguntas_exists == False):
+  mycursor.execute("CREATE TABLE perguntas (id_pergunta INT PRIMARY KEY UNIQUE AUTO_INCREMENT, id_vaga INT NOT NULL, pergunta VARCHAR(350), tipo ENUM('obrigatoria', 'eliminatoria'), FOREIGN KEY (id_vaga) REFERENCES vagas(id_vaga))")
 
-if (perguntas_eliminatorias_exists == False):
-  mycursor.execute("CREATE TABLE perguntas_eliminatorias (id_usuario INT NOT NULL UNIQUE AUTO_INCREMENT, experiencia_area BOOLEAN, ingles BOOLEAN, python BOOLEAN, FOREIGN KEY (id_usuario) REFERENCES perguntas_obrigatorias(id_usuario))")
+if (respostas_exists == False):
+  mycursor.execute("CREATE TABLE respostas (id_usuario INT NOT NULL, id_vaga INT NOT NULL, id_pergunta INT NOT NULL, resposta VARCHAR(350), FOREIGN KEY (id_vaga) REFERENCES vagas(id_vaga), FOREIGN KEY (id_pergunta) REFERENCES perguntas(id_pergunta))")
 
 @app.route("/check/<job_id>", methods=["GET"])
 def check_job_id(job_id):
-    sql = "SELECT id FROM vagas WHERE id = %s"
+    sql = "SELECT id_vaga FROM vagas WHERE id_vaga = %s"
     job = (job_id,)
     mycursor.execute(sql, job)
     myresult = mycursor.fetchall()
     if (len(myresult) < 1):
-       return 'Código da vaga não existe. Por favor, verfique e informe novamente.'
+       return 'False'
     else:
-       return 'Código da vaga existe. Por favor, prossiga.'
+       return 'True'
 
 @app.route("/job_messages/<user_id>", methods=["GET"])
 def get_job_messages(user_id):
-    sql = "SELECT pe.id_usuario, nome, email, formacao, tecnologias, experiencia_area, ingles, python FROM perguntas_obrigatorias po JOIN perguntas_eliminatorias pe ON pe.id_usuario = po.id_usuario WHERE po.id_usuario = %s"
+    sql = "SELECT id_usuario, r.id_vaga, pergunta, resposta, tipo FROM respostas r JOIN perguntas p ON r.id_pergunta = p.id_pergunta WHERE id_usuario = %s"
     user = (user_id,)
     mycursor.execute(sql, user)
     myresult = mycursor.fetchall()
     if (len(myresult) < 1):
-       return 'Usuário inexistente.'
+       return False
     else:
-        mydict = {
-            "id": myresult[0][0],
-            "nome": myresult[0][1],
-            "email": myresult[0][2],
-            "formacao": myresult[0][3],
-            "tecnologias": myresult[0][4],
-            "experiencia_area": myresult[0][5],
-            "ingles": myresult[0][6],
-            "python": myresult[0][7],
+        myarray = []
+        for m in myresult:
+           mydict = ([{
+              "id_usuario": myresult[myresult.index(m)][0],
+              "id_vaga": myresult[myresult.index(m)][1],
+              "pergunta": myresult[myresult.index(m)][2],
+              "resposta": myresult[myresult.index(m)][3],
+              "tipo": myresult[myresult.index(m)][4],
+           }])
+           myarray.append(mydict)
+        dictresp = {
+           "resp": myarray
         }
-        return mydict
+        return dictresp
 
 @app.route("/job_application", methods=["POST"])
 def job_application():
     application = json.loads(request.data)
-    nome = application["nome"]
-    email = application["email"]
-    formacao = application["formacao"]
-    tecnologias = application["tecnologias"]
-    experiencia_area = application["experiencia_area"]
-    ingles = application["ingles"]
-    python = application["python"]
 
-    #também é bom tratar os dados para garantir que string é string e booleano é booleano
+    user_id = 1
+    respostas = []
+    count = 1
 
-    perguntas_obrigatorias = (nome,email,formacao,tecnologias)
-    sql1 = "INSERT INTO perguntas_obrigatorias(nome, email, formacao, tecnologias) VALUES (%s, %s, %s, %s);"
-    mycursor.execute(sql1, perguntas_obrigatorias)
-    mydb.commit()
+    users = "SELECT max(id_usuario) FROM respostas"
+    mycursor.execute(users)
+    myresult = mycursor.fetchall()
+    if (myresult[0][0] is not None):
+       user_id = myresult[0][0] + 1
 
-    perguntas_eliminatorias = (experiencia_area,ingles,python)
-    sql2 = "INSERT INTO perguntas_eliminatorias(experiencia_area, ingles, python) VALUES (%s, %s, %s);"
-    mycursor.execute(sql2, perguntas_eliminatorias)
-    mydb.commit()
+    for a in application:
+      if (a == 'id_vaga' or a == 'vaga'):
+        vaga = application[a]
+      else:
+        respostas.append(application[a])
+    
+    for r in respostas:
+       sql = "INSERT INTO respostas(id_usuario, id_vaga, id_pergunta, resposta) VALUES (%s, %s, %s, %s)"
+       data = (user_id, vaga, count, r)
+       mycursor.execute(sql, data)
+       mydb.commit()
+       count += 1
 
-    returnstr = "Usuário " + nome + " inserido com sucesso!"
-    return returnstr
+    return "Respostas inseridas com sucesso"
 
     
 
