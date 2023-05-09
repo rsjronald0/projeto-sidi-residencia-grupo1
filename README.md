@@ -5,9 +5,11 @@ A API roda localmente, com uma porta específica para cada serviço em execuçã
 
 Cada microsserviço conta com um arquivo app.py que representa a execução da API localmente, e com outro arquivo db.py, presente na pasta database que é responsável pela criação da database e tabelas do serviço MySQL localmente.
 
-Até o momento, a API possui 3 rotas/serviços no microsserviço "gupy_service":
+Até o momento, a API possui 4 rotas/serviços no microsserviço "gupy_service":
 
 /check?job_id -> job_id é um parâmetro GET que precisa ser preenchido, exemplo: "127.0.0.1:5002/check?job_id=123". Nessa URL de exemplo, será verificado se o id 123 existe na tabela de vagas.
+
+/job_questions?job_id -> job_id é um parâmetro GET que precisa ser preenchido, exemplo: "127.0.0.1:5003/job_questions?job_id=1". Nessa URL de exemplo, serão retornadas todas as perguntas da vaga de ID 1.
 
 /job_messages?user_id -> user_id é um parâmetro GET que precisa ser preenchido, exemplo: "127.0.0.1:5001/job_messages?user_id=10". Nessa URL de exemplo, todas as informações sobre o usuário com id 10 serão exibidas, que no caso são todas as respostas das perguntas preenchidas pelo candidato ao se inscrever numa vaga.
 
