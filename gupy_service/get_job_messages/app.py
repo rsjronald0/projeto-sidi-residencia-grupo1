@@ -15,12 +15,12 @@ mycursor = mydb.cursor()
 
 @app.route("/job_messages", methods=["GET"])
 # Exemplo de envio de requisição de GET Job Messages:
-# 127.0.0.1:5000/job_messages?user_id=5 (retorna os resultados para o usuário de ID 5)
+# 127.0.0.1:5001/job_messages?user_id=5 (retorna os resultados para o usuário de ID 5)
 # Retorna um dicionário com um campo "resp" contendo um array de todas as respostas dadas pelo usuário fornecido na URL da requisição
 # Retorna um dicionário com campo "resp" False se o usuário não existe ou nunca respondeu nenhuma pergunta
 def get_job_messages():
     user_id = int(request.args.get('user_id'))
-    sql = "SELECT id_usuario, r.id_vaga, pergunta, resposta, tipo FROM respostas r JOIN perguntas p ON r.id_pergunta = p.id_pergunta WHERE id_usuario = %s"
+    sql = "SELECT id_usuario, r.id_vaga, pergunta, resposta, tipo FROM respostas r JOIN perguntas p ON r.id_pergunta = p.id_pergunta WHERE id_usuario = %s ORDER BY r.id_pergunta ASC"
     user = (user_id,)
     mycursor.execute(sql, user)
     myresult = mycursor.fetchall()

@@ -16,7 +16,7 @@ mycursor = mydb.cursor()
 
 @app.route("/check", methods=["GET"])
 # Exemplo de envio de requisição de GET Check Job Id:
-# 127.0.0.1:5000/check?job_id=5 (retorna o resultado para a vaga de ID 5)
+# 127.0.0.1:5002/check?job_id=5 (retorna o resultado para a vaga de ID 5)
 # Retorna um dicionário com campo "resp" True se a vaga for válida ou existir
 # Retorna um dicionário com campo "resp" False se a vaga não for válida ou não existir
 def check_job_id():
