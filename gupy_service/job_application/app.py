@@ -1,5 +1,5 @@
 import json
-from flask import Flask, request
+from flask import Flask, request, jsonify
 import mysql.connector
 
 app = Flask(__name__)
@@ -51,7 +51,12 @@ def job_application():
        mydb.commit()
        count += 1
 
-    return "Respostas inseridas com sucesso"
+    data = {
+       "resp": "Respostas inseridas com sucesso"
+    }
+    response = jsonify(data)
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    return response
 
 # API rodando localmente na porta 5000
 if __name__ == "__main__":

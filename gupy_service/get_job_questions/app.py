@@ -1,4 +1,4 @@
-from flask import Flask, request
+from flask import Flask, request, jsonify
 import mysql.connector
 
 app = Flask(__name__)
@@ -25,7 +25,12 @@ def get_job_messages():
     mycursor.execute(sql, job)
     myresult = mycursor.fetchall()
     if (len(myresult) < 1):
-      return { "resp" : False }
+      data = {
+         "resp": False
+      }
+      response = jsonify(data)
+      response.headers['Access-Control-Allow-Origin'] = '*'
+      return response
     else:
         myarray = []
         for m in myresult:
@@ -37,7 +42,9 @@ def get_job_messages():
         dictresp = {
            "resp": myarray
         }
-        return dictresp
+        response = jsonify(dictresp)
+        response.headers['Access-Control-Allow-Origin'] = '*'
+        return response
     
 # API rodando localmente na porta 5003
 if __name__ == "__main__":

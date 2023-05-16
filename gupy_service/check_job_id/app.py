@@ -1,4 +1,4 @@
-from flask import Flask, request
+from flask import Flask, request, jsonify
 import mysql.connector
 
 app = Flask(__name__)
@@ -26,9 +26,19 @@ def check_job_id():
     mycursor.execute(sql, job)
     myresult = mycursor.fetchall()
     if (len(myresult) < 1):
-      return { "resp" : False }
+      data = {
+         'resp': False
+      }
+      response = jsonify(data)
+      response.headers['Access-Control-Allow-Origin'] = '*'
+      return response
     else:
-      return { "resp" : True }
+      data = {
+         'resp': True
+      }
+      response = jsonify(data)
+      response.headers['Access-Control-Allow-Origin'] = '*'
+      return response
     
 # API rodando localmente na porta 5002
 if __name__ == "__main__":
