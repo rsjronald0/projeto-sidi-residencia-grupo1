@@ -51,7 +51,7 @@ if (vagas_exists == False):
   mycursor.execute("CREATE TABLE vagas (id_vaga INT PRIMARY KEY NOT NULL UNIQUE AUTO_INCREMENT, nome VARCHAR(200))")
 
 if (perguntas_exists == False):
-  mycursor.execute("CREATE TABLE perguntas (id_pergunta INT PRIMARY KEY, id_vaga INT NOT NULL, pergunta VARCHAR(350), tipo ENUM('obrigatoria', 'eliminatoria'), FOREIGN KEY (id_vaga) REFERENCES vagas(id_vaga))")
+  mycursor.execute("CREATE TABLE perguntas (id_pergunta INT, id_vaga INT NOT NULL, pergunta VARCHAR(350), tipo ENUM('obrigatoria', 'eliminatoria'), FOREIGN KEY (id_vaga) REFERENCES vagas(id_vaga))")
 
 if (respostas_exists == False):
-  mycursor.execute("CREATE TABLE respostas (id_usuario INT NOT NULL, id_vaga INT NOT NULL, id_pergunta INT NOT NULL, resposta VARCHAR(350), FOREIGN KEY (id_vaga) REFERENCES vagas(id_vaga), FOREIGN KEY (id_pergunta) REFERENCES perguntas(id_pergunta))")
+  mycursor.execute("CREATE TABLE respostas (id_usuario INT NOT NULL, id_vaga INT NOT NULL, id_pergunta INT NOT NULL, resposta VARCHAR(350), FOREIGN KEY (id_vaga) REFERENCES vagas(id_vaga))")
