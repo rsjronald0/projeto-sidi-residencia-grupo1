@@ -20,8 +20,8 @@ mycursor = mydb.cursor()
 # Retorna um dicionário com campo "resp" False se o usuário não existe ou nunca respondeu nenhuma pergunta
 def get_job_messages():
     user_id = int(request.args.get('user_id'))
-    sql = "SELECT id_usuario, r.id_vaga, pergunta, resposta, tipo FROM respostas r JOIN perguntas p ON r.id_pergunta = p.id_pergunta WHERE id_usuario = %s ORDER BY r.id_pergunta ASC"
-    user = (user_id,)
+    sql = "SELECT id_usuario, p.id_vaga, pergunta, resposta, tipo FROM respostas r JOIN perguntas p ON r.id_pergunta = p.id_pergunta WHERE id_usuario = %s AND p.id_vaga = (SELECT max(id_vaga) FROM respostas WHERE id_usuario = %s) ORDER BY p.id_pergunta ASC;"
+    user = (user_id,user_id,)
     mycursor.execute(sql, user)
     myresult = mycursor.fetchall()
     if (len(myresult) < 1):
