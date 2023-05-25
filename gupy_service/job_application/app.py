@@ -21,7 +21,7 @@ mycursor = mydb.cursor()
 #    "resposta1": "True",
 #    "resposta2": "False",
 #    "resposta3": "True",
-#    "reposta4": "Lorem ipsum",
+#    "resposta4": "Lorem ipsum",
 #    "resposta5": "teste@teste.com"
 # }
 # Retorna uma string "Respostas inseridas com sucesso" após a inserção dos dados
